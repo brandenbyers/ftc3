@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Highlighting with Audio Sync</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 20;
+      padding: 0;
+      box-sizing: border-box;
+      position: relative;
+      padding-bottom: 80px;
+    }
+    #transcript {
+      font-size: 1.4rem;
+      text-align: center;
+      padding: 0 10%;
+      line-height: 1.8;
+    }
+    .highlight {
+      background-color: yellow;
+    }
+    #audioPlayer {
+      width: 80%;
+      position: fixed;
+      bottom: 0;
+      left: 50%; /* Add this */
+      transform: translateX(-50%); /* Add this */
+    }
+    .section-header {
+      font-weight: bold;
+      font-size: 2rem;
+      margin: 1.5rem 0;
+    }
+    .textElem {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="transcript"></div>
+  <div id="audioPlayer">
+    <audio controls style="width: 100%;">
+      <source src="ftc-002-lecture.mp3" type="audio/mp3">
+      <track id="vttTrack" src="FTC-002-lecture.vtt" kind="metadata">
+    </audio>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const audioPlayer = document.querySelector('#audioPlayer audio');
+      const vttTrack = document.getElementById('vttTrack');
+      const transcript = document.getElementById('transcript');
+
+      let cuesLoaded = false;
+      let cues = [];
+
+      vttTrack.track.mode = 'hidden';
+      vttTrack.track.oncuechange = () => {
+        if (!cuesLoaded) {
+          cuesLoaded = true;
+          cues = Array.from(vttTrack.track.cues);
+          createTranscript(cues);
+        }
+        highlightText(cues);
+      };
+
+      audioPlayer.addEventListener('timeupdate', () => {
+        highlightText(cues);
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.code === 'Space') {
+          event.preventDefault();
+          if (audioPlayer.paused) {
+            audioPlayer.play();
+          } else {
+            audioPlayer.pause();
+          }
+        }
+      });
+
+      function createTranscript(cues) {
+        cues.forEach((cue) => {
+          const textElem = document.createElement('span');
+          textElem.dataset.startTime = cue.startTime;
+          textElem.textContent = cue.text + ' ';
+          textElem.style.cursor = 'pointer';
+          textElem.classList.add('textElem');
+
+          textElem.addEventListener('click', (event) => {
+            audioPlayer.currentTime = parseFloat(textElem.dataset.startTime);
+            if (event.detail === 2) {
+              audioPlayer.play();
+            }
+          });
+
+          transcript.appendChild(textElem);
+        });
+      }
+
+      function highlightText(cues) {
+        const currentTime = audioPlayer.currentTime;
+
+        cues.forEach((cue, index) => {
+          const textElem = transcript.children[index];
+
+          if (currentTime >= cue.startTime && currentTime <= cue.endTime) {
+            textElem.classList.add('highlight');
+          } else {
+            textElem.classList.remove('highlight');
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

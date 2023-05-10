@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Audio Player</title>
+  <style>
+    #audioPlayer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: white;
+      padding: 10px;
+    }
+
+    button {
+      background-color: pink;
+      border: none;
+      padding: 5px;
+      margin: 0 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: green;
+    }
+
+    #progressBar {
+      flex-grow: 1;
+      height: 5px;
+      background-color: pink;
+      margin: 0 10px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    #progress {
+      height: 100%;
+      width: 0;
+      background-color: green;
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <div id="audioPlayer">
+    <button id="playPauseBtn">Play</button>
+    <div id="progressBar">
+      <div id="progress"></div>
+    </div>
+    <button id="muteBtn">Mute</button>
+  </div>
+
+  <audio id="audio" style="display:none;">
+    <source src="path/to/your/audio.wav" type="audio/wav">
+  </audio>
+
+  <script>
+    const audio = document.getElementById('audio');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progress = document.getElementById('progress');
+
+    playPauseBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        playPauseBtn.textContent = 'Pause';
+      } else {
+        audio.pause();
+        playPauseBtn.textContent = 'Play';
+      }
+    });
+
+    muteBtn.addEventListener('click', () => {
+      audio.muted = !audio.muted;
+      muteBtn.textContent = audio.muted ? 'Unmute' : 'Mute';
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      progress.style.width = (audio.currentTime / audio.duration) * 100 + '%';
+    });
+
+    progressBar.addEventListener('click', (e) => {
+      const rect = progressBar.getBoundingClientRect();
+      const clickPosition = e.clientX - rect.left;
+      const clickRatio = clickPosition / rect.width;
+      audio.currentTime = clickRatio * audio.duration;
+    });
+  </script>
+</body>
+</html>
