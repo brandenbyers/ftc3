@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Text Highlighting with Audio Sync</title>
+  <title>FTC 3 R&T</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -40,6 +40,12 @@
   </style>
 </head>
 <body>
+  <select id="lectureSelect" onchange="location = this.value;">
+    <option value="#">Select Lecture</option>
+    <option value="/ftc-002/">FTC-002</option>
+    <option value="/ftc-003/">FTC-003</option>
+    <!-- Add all other links here -->
+  </select>
   <div id="transcript"></div>
   <div id="audioPlayer">
     <audio controls style="width: 100%;" async>
