@@ -42,7 +42,7 @@
 <body>
   <div id="transcript"></div>
   <div id="audioPlayer">
-    <audio controls style="width: 100%;">
+    <audio controls style="width: 100%;" async>
       <source src="ftc-002-lecture.mp3" type="audio/mp3">
       <track id="vttTrack" src="FTC-002-lecture.vtt" kind="metadata">
     </audio>
@@ -87,13 +87,28 @@
           textElem.dataset.startTime = cue.startTime;
           textElem.textContent = cue.text + ' ';
           textElem.style.cursor = 'pointer';
-          textElem.classList.add('textElem');
 
-          textElem.addEventListener('click', (event) => {
-            audioPlayer.currentTime = parseFloat(textElem.dataset.startTime);
-            if (event.detail === 2) {
-              audioPlayer.play();
+          let lastClickTime = 0;
+
+          textElem.addEventListener('click', () => {
+            const currentTime = new Date().getTime();
+            const timeDiff = currentTime - lastClickTime;
+
+            if (timeDiff < 300) {
+              handleDoubleClick(textElem);
             }
+            lastClickTime = currentTime;
+          });
+
+          textElem.addEventListener('touchend', (event) => {
+            event.preventDefault();
+            const currentTime = new Date().getTime();
+            const timeDiff = currentTime - lastClickTime;
+
+            if (timeDiff < 300) {
+              handleDoubleClick(textElem);
+            }
+            lastClickTime = currentTime;
           });
 
           transcript.appendChild(textElem);
@@ -112,6 +127,14 @@
             textElem.classList.remove('highlight');
           }
         });
+      }
+
+      let touchStartTime;
+      function handleDoubleClick(textElem) {
+        audioPlayer.currentTime = parseFloat(textElem.dataset.startTime);
+        if (audioPlayer.paused) {
+          audioPlayer.play();
+        }
       }
     });
   </script>
